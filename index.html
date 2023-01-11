@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜索引擎</title>
+</head>
+
+<body>
+  <style>
+    body {
+      background: linear-gradient(135deg, #4bc0c8, #c779d0, #feac5e);
+    }
+  </style>
+  <div id="body">
+    <div style="
+            display: flex;
+            flex-direction: column;
+            color: gray;
+            font-size: larger;
+            align-items: center;
+          ">
+      <p1 id="time">00:00</p1>
+      <div style="display: flex; justify-content: space-between; width: 200px">
+        <p1 id="day">2000-01-01</p1>
+        <p1 id="week">星期一</p1>
+      </div>
+    </div>
+    <div>
+      <div>
+        <input type="text" placeholder="搜索内容……" id="typeBox" />
+        <span onclick="go()" id="button">搜索</span>
+      </div>
+      <div style="margin-top: 10px">
+        <form id="form">
+          <label for="search">
+            <input type="radio" name="search" value="https://www.baidu.com/s?wd=" class="label" checked />
+            百度
+            <br />
+            <input type="radio" name="search" value="https://www.soumao.cc/search?q=" class="label" />
+            谷歌
+            <br />
+            <input type="radio" name="search" value="https://cn.bing.com/search?q=" class="label" />
+            必应
+            <br />
+            <input type="radio" name="search" value="https://www.so.com/s?q=" class="label" />
+            360
+            <br />
+            <input type="radio" name="search" value="http://www.sogou.com/web?query=" class="label" />
+            搜狗
+            <br />
+            <input type="radio" name="search" value="https://search.bilibili.com/all?keyword=" class="label" />
+            哔哩哔哩
+            <br />
+            <input type="radio" name="search" value="https://hanyu.baidu.com/s?wd=" class="label" />
+            百度汉语
+            <br />
+            <input type="radio" name="search" value="http://www.youdao.com/w/eng/" class="label" />
+            有道
+            <br />
+            <input type="radio" name="search" value="https://fanyi.baidu.com/#en/zh/" class="label" />
+            百度翻译
+            <br />
+            <input type="radio" name="search" value="others" class="label" />
+            其他（请填写URL及表单关键字）：
+            <input type="text" placeholder="https://www.baidu.com/s?wd=" id="othersValue" style="width: 200px"
+              class="label" onclick="turnOther()" />
+          </label>
+        </form>
+      </div>
+    </div>
+    <div style="
+            display: flex;
+            color: gray;
+            margin-top: 30px;
+            justify-content: space-between;
+            width: 525.89px;
+          ">
+      <p id="open">今日开机时间：00:00:00</p>
+      <p id="toNow" style="margin-left: 16px">已开机：00:00:00</p>
+    </div>
+    <span onclick="changeBg()" class="span">更换背景</span>
+    <span onclick="list()" class="span">开关机记录</span>
+    <audio id="audio" src="./music.m4a" hidden="true"></audio>
+  </div>
+  <script>
+    function cache() {
+      let before = document.getElementById("typeBox").value;
+      setTimeout(() => {
+        let after = document.getElementById("typeBox").value;
+        if (before != after) {
+          radio = document.getElementById("form");
+          if (after == "") {
+            document.getElementById("button").innerHTML = "前往";
+          } else {
+            document.getElementById("button").innerHTML = "搜索";
+          }
+          if (isEnglish(after)) {
+            radio[7].checked = true;
+          } else {
+            radio[0].checked = true;
+          }
+        }
+        cache();
+      }, 1000);
+    }
+    function getValue() {
+      let radio = document.getElementsByName("search");
+      for (i = 0; i < radio.length; i++) {
+        if (radio[i].checked) {
+          return radio[i].value;
+        }
+      }
+    }
+    function isEnglish(typeBox) {
+      if (typeBox == "") {
+        return false;
+      }
+      for (let i = 0; i < typeBox.length; i++) {
+        if (
+          !(typeBox[i] >= "a" && typeBox[i] <= "z") &&
+          !(typeBox[i] >= "A" && typeBox[i] <= "Z") &&
+          typeBox[i] != " "
+        ) {
+          return false;
+        }
+      }
+      return true;
+    }
+    function go() {
+      let typeBox = document.getElementById("typeBox").value;
+      if (getValue() == "others") {
+        window.open(document.getElementById("othersValue").value + typeBox);
+      } else {
+        window.open(getValue() + typeBox);
+      }
+    }
+    function turnOther() {
+      radio = document.getElementById("form");
+      radio[9].checked = true;
+    }
+    function changeBg() {
+      window.localStorage.setItem(
+        "bg",
+        Number(window.localStorage.getItem("bg")) + 1
+      );
+      document.body.style.backgroundImage =
+        "url(./bg/" + (window.localStorage.getItem("bg") % 5) + ".jpg)";
+    }
+    window.onkeydown = function (event) {
+      if (event.keyCode == 13) {
+        go();
+      }
+      if (event.keyCode == 83 && openSearch) {
+        search();
+      }
+    };
+    document.body.style.backgroundImage =
+      "url(./bg/" + (window.localStorage.getItem("bg") % 5) + ".jpg)";
+    cache();
+    function getDayTime() {
+      let date = new Date();
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+      let dayTime = year + "-" + this.addZero(month) + "-" + this.addZero(day);
+      return dayTime;
+    }
+    function getSecondTime() {
+      let date = new Date();
+      let hour = date.getHours();
+      let minute = date.getMinutes();
+      let second = date.getSeconds();
+      let secondTime =
+        this.addZero(hour) +
+        ":" +
+        this.addZero(minute) +
+        ":" +
+        this.addZero(second);
+      return secondTime;
+    }
+    function time() {
+      let week = ["日", "一", "二", "三", "四", "五", "六"];
+      document.getElementById("day").innerHTML = getDayTime();
+      document.getElementById("time").innerHTML = getSecondTime().substring(0, 5);
+      document.getElementById("week").innerHTML =
+        "星期" + week[new Date().getDay()];
+      let now = new Date();
+      let open =
+        window.localStorage.getItem("day") +
+        " " +
+        window.localStorage.getItem("time");
+      open = new Date(open.replace(/-/g, "/"));
+      document.getElementById("toNow").innerHTML =
+        "已开机：" + getDifference(now, open);
+      let clock = new Date((getDayTime() + " " + clockTime).replace(/-/g, "/"));
+      if (getDifference(now, clock) >= "00:" + addZero(clockSpan) + ":00") {
+        clockTime = getSecondTime();
+        document.getElementById("audio").play();
+      }
+      window.localStorage.setItem(getDayTime(), [
+        " 开机时间: " + window.localStorage.getItem("time") + " ",
+        " 关机时间: " + getSecondTime() + " ",
+        " 使用时长: " + getDifference(now, open),
+      ]);
+      setTimeout(() => {
+        time();
+      }, 1000);
+    }
+    function addZero(time) {
+      time = Number(time);
+      return time < 10 ? "0" + time : time;
+    }
+    function getDifference(timea, timeb) {
+      let times = timea.getTime() - timeb.getTime();
+      let h = parseInt(times / (3600 * 1000));
+      let m = parseInt((times % (3600 * 1000)) / (60 * 1000));
+      let s = parseInt(((times % (3600 * 1000)) % (60 * 1000)) / 1000);
+      return addZero(h) + ":" + addZero(m) + ":" + addZero(s);
+    }
+    function list() {
+      openSearch = true;
+      let date = document.createElement("div");
+      date.id = "date";
+      date.className = "list";
+      date.style = "margin-top: 10px";
+      let text = document.createElement("div");
+      text.id = "text";
+      text.className = "list";
+      let yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+      let inA = document.createElement("input");
+      inA.id = "inA";
+      inA.style = "width: 30px";
+      inA.value = yesterday.getFullYear();
+      let p1 = document.createElement("p1");
+      p1.style = "margin-left: 8px; font-size: medium;";
+      p1.innerHTML = "年";
+      let inB = document.createElement("input");
+      inB.id = "inB";
+      inB.style = "margin-left: 8px; width: 15px";
+      inB.value = addZero(yesterday.getMonth() + 1);
+      let p2 = document.createElement("p1");
+      p2.style = "margin-left: 8px; font-size: medium;";
+      p2.innerHTML = "月";
+      let inC = document.createElement("input");
+      inC.id = "inC";
+      inC.style = "margin-left: 8px; width: 15px";
+      inC.value = addZero(yesterday.getDate());
+      let p3 = document.createElement("p1");
+      p3.style = "margin-left: 8px; font-size: medium";
+      p3.innerHTML = "日";
+      let ok = document.createElement("p1");
+      ok.innerHTML = "按 S键 查询";
+      ok.style = "font-size: x-small";
+      document.getElementById("body").appendChild(date);
+      document.getElementById("body").appendChild(text);
+      document.getElementById("date").appendChild(inA);
+      document.getElementById("date").appendChild(p1);
+      document.getElementById("date").appendChild(inB);
+      document.getElementById("date").appendChild(p2);
+      document.getElementById("date").appendChild(inC);
+      document.getElementById("date").appendChild(p3);
+      document.getElementById("text").appendChild(ok);
+    }
+    function search() {
+      openSearch = false;
+      let searchDay =
+        document.getElementById("inA").value +
+        "-" +
+        addZero(document.getElementById("inB").value) +
+        "-" +
+        addZero(document.getElementById("inC").value);
+      window.confirm(window.localStorage.getItem(searchDay));
+      document.getElementById("body").removeChild(document.getElementById("date"));
+      document.getElementById("body").removeChild(document.getElementById("text"));
+    }
+    if (window.localStorage.getItem("day") != getDayTime()) {
+      window.localStorage.setItem("day", getDayTime());
+      window.localStorage.setItem("time", getSecondTime());
+    }
+    if (window.localStorage.getItem("bg") == null) {
+      window.localStorage.setItem("bg", 0);
+    }
+    let clockTime = getSecondTime(),
+      clockSpan = 30,
+      openSearch = false;
+    time();
+    document.getElementById("open").innerHTML =
+      "今日开机时间：" + window.localStorage.getItem("time");
+    function a() {
+      function n(n, e, t) {
+        return n.getAttribute(e) || t
+      }
+      function e(n) {
+        return document.getElementsByTagName(n)
+      }
+      function t() {
+        var t = e("script")
+          , o = t.length
+          , i = t[o - 1];
+        return {
+          l: o,
+          z: n(i, "zIndex", -1),
+          o: n(i, "opacity", .5),
+          c: n(i, "color", "0,0,0"),
+          n: n(i, "count", 99)
+        }
+      }
+      function o() {
+        a = m.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+          c = m.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+      }
+      function i() {
+        r.clearRect(0, 0, a, c);
+        var n, e, t, o, m, l;
+        s.forEach(function (i, x) {
+          for (i.x += i.xa,
+            i.y += i.ya,
+            i.xa *= i.x > a || i.x < 0 ? -1 : 1,
+            i.ya *= i.y > c || i.y < 0 ? -1 : 1,
+            r.fillRect(i.x - .5, i.y - .5, 1, 1),
+            e = x + 1; e < u.length; e++)
+            n = u[e],
+              null !== n.x && null !== n.y && (o = i.x - n.x,
+                m = i.y - n.y,
+                l = o * o + m * m,
+                l < n.max && (n === y && l >= n.max / 2 && (i.x -= .03 * o,
+                  i.y -= .03 * m),
+                  t = (n.max - l) / n.max,
+                  r.beginPath(),
+                  r.lineWidth = t / 2,
+                  r.strokeStyle = "rgba(" + d.c + "," + (t + .2) + ")",
+                  r.moveTo(i.x, i.y),
+                  r.lineTo(n.x, n.y),
+                  r.stroke()))
+        }),
+          x(i)
+      }
+      var a, c, u, m = document.createElement("canvas"), d = t(), l = "c_n" + d.l, r = m.getContext("2d"), x = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (n) {
+        window.setTimeout(n, 1e3 / 45)
+      }
+        , w = Math.random, y = {
+          x: null,
+          y: null,
+          max: 2e4
+        };
+      m.id = l,
+        m.style.cssText = "position:fixed;top:0;left:0;z-index:" + d.z + ";opacity:" + d.o,
+        e("body")[0].appendChild(m),
+        o(),
+        window.onresize = o,
+        window.onmousemove = function (n) {
+          n = n || window.event,
+            y.x = n.clientX,
+            y.y = n.clientY
+        }
+        ,
+        window.onmouseout = function () {
+          y.x = null,
+            y.y = null
+        }
+        ;
+      for (var s = [], f = 0; d.n > f; f++) {
+        var h = w() * a
+          , g = w() * c
+          , v = 2 * w() - 1
+          , p = 2 * w() - 1;
+        s.push({
+          x: h,
+          y: g,
+          xa: v,//v
+          ya: p,
+          max: 6e3
+        })
+      }
+      u = s.concat([y]),
+        setTimeout(function () {
+          i()
+        }, 100)
+    }
+    a();
+    var a_idx = 0;
+    jQuery(document).ready(function ($) {
+      $("body").click(function (e) {
+        var a = new Array("❤富强❤","❤民主❤","❤文明❤","❤和谐❤","❤自由❤","❤平等❤","❤公正❤","❤法治❤","❤爱国❤","❤敬业❤","❤诚信❤","❤友善❤");
+        var s = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+        var $i = $("<span></span>").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+          y = e.pageY;
+        $i.css({
+          "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+          "top": y - 20,
+          "left": x,
+          "position": "absolute",
+          "font-weight": "bold",
+          "color": "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+        });
+        $("body").append($i);
+        $i.animate({
+          "top": y - 180,
+          "opacity": 0
+        },
+          1500,
+          function () {
+            $i.remove();
+          });
+      });
+    });
+
+  </script>
+</body>
+
+</html>
